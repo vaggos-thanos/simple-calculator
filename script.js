@@ -1,3 +1,4 @@
+// Συμπληρώστε τις παρακάτω εντολές επιλογής
 const numberButtons = document.querySelectorAll("[data-number]")
 const operationButtons = document.querySelectorAll("[data-operation]")
 const equalsButton = document.querySelector("[data-equals]")
@@ -5,26 +6,40 @@ const deleteButton = document.querySelector("[data-delete]")
 const allClearButton = document.querySelector("[data-all-clear]")
 const previousOperandTextElement = document.querySelector("[data-previous-operand]")
 const currentOperandTextElement = document.querySelector("[data-current-operand]")
+const dataPlusMinus = document.querySelector("[data-plus-minus]")
 let currentOperand, previousOperand, operation;
 clear();
  
+//Αρχικοποιεί τις global μεταβλητές. ΟΙ 3 ΜΕΤΑΒΛΗΤΕΣ ΕΧΟΥΝ ΤΥΠΟ String
 function clear() {
   currentOperand = '';
   previousOperand = '';
   operation = '';
 }
 
+//Ενημερώνει το περιεχόμενο στις 2 γραμμές του display
 function updateDisplay() {
   currentOperandTextElement.innerHTML = currentOperand;
   previousOperandTextElement.innerHTML = previousOperand + operation;
 }
 
+//Επισυνάπτει ένα ακόμη ψηφίο στο τέλος του currentOperant
+// Προσοχή στην περίπτωση που το ψηφίο είναι .
 function appendDigit(digit) {
   if (digit === '.' && currentOperand.includes('.')) return
   currentOperand = currentOperand + digit;
 
 }
 
+
+
+/*Όταν πατηθεί ένα πλήκτρο πράξης:
+  - Αν και οι δύο αριθμοί είναι κενοί, δεν γίνεται τίποτα
+  - Αν και οι δύο αριθμοί ΔΕΝ είναι κενοί γίνεται υπολογισμός καλώντας τη συνάρτηση compute()
+  - Αποδίδεται η νέα τιμή στη μεταβλητή operation
+  - Η τιμή του currentOperant περνάει πλέον στο previusOperant
+  - "Αδειάζει" το περιεχόμενο του current operant
+*/
 function chooseOperation(operButton) {
   if (currentOperand === '') return
   if (previousOperand !== '') {
@@ -35,6 +50,12 @@ function chooseOperation(operButton) {
   currentOperand = ''; 
 }
 
+
+/* Εκτελεί αριθμητική πράξη με τα previousOperand και currentOperant
+   Η πράξη που θα γίνει καθορίζεται από την τιμή του operant
+   Το αποτέλεσμα της πράξης αποθηκεύεται στο current operant
+   Οι μεταβλητές previousOperand και το operation αρχικοποιούνται σε κενή τιμή
+*/
 function compute() {
   let computation
   const prev = parseFloat(previousOperand)
@@ -53,6 +74,12 @@ function compute() {
     case '÷':
       computation = prev / current
       break
+    case '%':
+      computation = prev % current
+      break
+    case '±':
+      computation = prev * -1
+      break
     default:
       return
   }
@@ -62,6 +89,27 @@ function compute() {
   
 }
 
+
+// ΣΕ ΚΑΘΕ eventListener ΜΗΝ ΞΕΧΝΑΤΕ ΌΤΙ ΠΡΈΠΕΙ ΝΑ ΚΑΛΕΊΤΕ ΚΑΙ ΤΗΝ ΣΥΝΑΡΤΗΣΗ updateDisplay()
+// Αξιοποιήστε τις συναρτήσεις που δημιουργησατε παραπάνω
+
+
+// Προσθέστε τους eventListeners για τα κουμπιά με τα αριθμητικά ψηφία
+
+
+
+
+
+// Προσθέστε τους eventListeners για τα κουμπιά με τα σύμβολα των πράξεων
+
+
+// Προσθέστε τους eventListeners για κάθε ένα από τα κουμπιά =, AC, DEL 
+// Για το κουμπί DEL αναζητήστε την κατάλληλη μέθοδο για να σβήσετε το τελευταίο ψηφίο του currentOperant
+
+
+
+
+// Προσθέστε τους eventListeners για τα κουμπιά με τα αριθμητικά ψηφία
 numberButtons.forEach(button => {
   button.addEventListener('click', () => {
     appendDigit(button.innerHTML);
@@ -69,6 +117,7 @@ numberButtons.forEach(button => {
   })
 })
 
+// Προσθέστε τους eventListeners για τα κουμπιά με τα σύμβολα των πράξεων
 operationButtons.forEach(button => {
   button.addEventListener('click', () => {
     chooseOperation(button.innerHTML);
@@ -76,6 +125,7 @@ operationButtons.forEach(button => {
   })
 })
 
+// Προσθέστε τους eventListeners για κάθε ένα από τα κουμπιά =, AC, DEL 
 equalsButton.addEventListener('click', () => {
   compute();
   updateDisplay();
@@ -91,8 +141,24 @@ deleteButton.addEventListener('click', () => {
   updateDisplay();
 })
 
+dataPlusMinus.addEventListener('click', () => {
+  currentOperand = currentOperand * -1;
+  updateDisplay();
+})
+
+
+
+// Προσθέστε τους eventListeners για τα κουμπιά με τα αριθμητικά ψηφία
+
+// Προσθέστε τους eventListeners για τα κουμπιά με τα σύμβολα των πράξεων
+
+// Προσθέστε τους eventListeners για κάθε ένα από τα κουμπιά =, AC, DEL
+
 addEventListener('keydown', (e) => {
-  if (e.key >= 0 && e.key <= 9) {
+  if (e.key === 'Shift') {
+    currentOperand = currentOperand * -1;
+    updateDisplay();
+  } else if (e.key >= 0 && e.key <= 9) {
     appendDigit(e.key);
     updateDisplay();
   } else if (e.key === '.') {
