@@ -19,8 +19,10 @@ function clear() {
 
 //Ενημερώνει το περιεχόμενο στις 2 γραμμές του display
 function updateDisplay() {
+  const hasData = previousOperandTextElement.innerHTML !== "";
   currentOperandTextElement.innerHTML = currentOperand;
   previousOperandTextElement.innerHTML = previousOperand + operation;
+  return hasData;
 }
 
 //Επισυνάπτει ένα ακόμη ψηφίο στο τέλος του currentOperant
@@ -41,7 +43,7 @@ function appendDigit(digit) {
   - "Αδειάζει" το περιεχόμενο του current operant
 */
 function chooseOperation(operButton) {
-  if (currentOperand === '') return
+  if (currentOperand === '') return;
   if (previousOperand !== '') {
     compute()
   }
@@ -89,25 +91,32 @@ function compute() {
   
 }
 
+function setDisplayZero(setZero, hasData) {
+  if (setZero && !hasData) {
+    currentOperand = "";
+    currentOperandTextElement.innerHTML = 0;
+  }
 
-// ΣΕ ΚΑΘΕ eventListener ΜΗΝ ΞΕΧΝΑΤΕ ΌΤΙ ΠΡΈΠΕΙ ΝΑ ΚΑΛΕΊΤΕ ΚΑΙ ΤΗΝ ΣΥΝΑΡΤΗΣΗ updateDisplay()
-// Αξιοποιήστε τις συναρτήσεις που δημιουργησατε παραπάνω
+  if (currentOperandTextElement.innerHTML === "") currentOperandTextElement.innerHTML = 0
+    
 
+}
 
-// Προσθέστε τους eventListeners για τα κουμπιά με τα αριθμητικά ψηφία
+async function hoverEffect(button) {
+  if (!button) return
+  button.style.backgroundColor = 'rgba(24, 26, 27, .9)';
+  setTimeout(() => {
+    button.style.backgroundColor = 'rgba(24, 26, 27, .75)';
+  }, 100);
+}
 
-
-
-
-
-// Προσθέστε τους eventListeners για τα κουμπιά με τα σύμβολα των πράξεων
-
-
-// Προσθέστε τους eventListeners για κάθε ένα από τα κουμπιά =, AC, DEL 
-// Για το κουμπί DEL αναζητήστε την κατάλληλη μέθοδο για να σβήσετε το τελευταίο ψηφίο του currentOperant
-
-
-
+function resolveButton(buttons, key) {
+  buttons.forEach(button => {
+    if (button.innerHTML === key) {
+      hoverEffect(button)
+    }
+  })
+}
 
 // Προσθέστε τους eventListeners για τα κουμπιά με τα αριθμητικά ψηφία
 numberButtons.forEach(button => {
@@ -154,27 +163,53 @@ dataPlusMinus.addEventListener('click', () => {
 
 // Προσθέστε τους eventListeners για κάθε ένα από τα κουμπιά =, AC, DEL
 
-addEventListener('keydown', (e) => {
-  if (e.key === 'Shift') {
-    currentOperand = currentOperand * -1;
-    updateDisplay();
-  } else if (e.key >= 0 && e.key <= 9) {
-    appendDigit(e.key);
-    updateDisplay();
-  } else if (e.key === '.') {
-    appendDigit(e.key);
-    updateDisplay();
-  } else if (e.key === '+' || e.key === '-' || e.key === '*' || e.key === '/') {
-    chooseOperation(e.key === "/" ? "÷" : e.key);
-    updateDisplay();
-  } else if (e.key === 'Enter') {
-    compute();
-    updateDisplay();
-  } else if (e.key === 'Backspace') {
-    currentOperand = currentOperand.toString().slice(0, -1);
-    updateDisplay();
-  } else if (e.key === 'Escape') {
-    clear();
-    updateDisplay();
+addEventListener('keydown',async (e) => {  
+  switch (e.key) {
+    case '+':
+    case '-':
+    case '*':
+    case '/':
+      chooseOperation(e.key === "/" ? "÷" : e.key);
+      updateDisplay();
+      setDisplayZero()
+      await resolveButton(operationButtons, e.key)
+      break;
+    case 'Enter':
+      compute();
+      const hasData = updateDisplay();
+      setDisplayZero(true, hasData)
+
+      hoverEffect(equalsButton);
+      break;
+    case 'Backspace':
+      currentOperand = currentOperand.toString().slice(0, -1);
+      updateDisplay();
+      if (currentOperand === '') setDisplayZero()
+      hoverEffect(deleteButton);
+      break;
+    case 'Escape':
+      clear();
+      updateDisplay();
+      setDisplayZero()
+      hoverEffect(allClearButton);
+      break;
+    case '.':
+      appendDigit(e.key);
+      updateDisplay();
+      await resolveButton(numberButtons, e.key)
+      break;
+    case 'Shift':
+      currentOperand = currentOperand * -1;
+      updateDisplay();
+      hoverEffect(dataPlusMinus);
+      break;
+    default:
+      if (e.key >= 0 && e.key <= 9) {
+        appendDigit(e.key);
+        updateDisplay();
+      }
+      await resolveButton(numberButtons, e.key)
+      break;
+
   }
 })
